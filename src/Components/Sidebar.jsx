@@ -1,4 +1,3 @@
-// src/Components/Sidebar.jsx (FIXED)
 import React, { useState } from 'react';
 import { 
     FiHome, FiUsers, FiSearch, FiClock, FiUser, 
@@ -7,8 +6,8 @@ import {
 
 const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
     const [isOpen, setIsOpen] = useState(true);
+    const [showSearch, setShowSearch] = useState(false); // <-- Added state for search bar toggle
 
-    // ... (menuItems, socialItems, generalItems definitions remain the same) ...
     const menuItems = [
       { name: 'Home', icon: FiHome },
       { name: 'Community', icon: FiUsers },
@@ -26,7 +25,7 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
       { name: 'Setting', icon: FiSettings },
       { name: 'Log Out', icon: FiLogOut },
     ];
-    // ... (renderNavSection function remains the same) ...
+
     const renderNavSection = (title, items) => (
         <div className="mb-8">
             <h3 className="text-gray-500 text-xs uppercase font-semibold mb-3 tracking-widest">
@@ -57,7 +56,6 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
             </nav>
         </div>
     );
-
 
     return (
         <>
@@ -96,8 +94,24 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
                 </div>
 
                 {/* Right Side: Search, Notifications, User Icons */}
-                <div className="flex items-center space-x-6">
-                    <FiSearch className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
+                <div className="flex items-center space-x-6 relative">
+                    {/* Search Icon */}
+                    <FiSearch
+                        className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer"
+                        onClick={() => setShowSearch(!showSearch)}
+                    />
+
+                    {/* Search Input (Toggle visibility) */}
+                    {showSearch && (
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            className="absolute right-16 top-1/2 -translate-y-1/2 bg-gray-800 text-white rounded-full px-4 py-2 w-64 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all"
+                            autoFocus
+                        />
+                    )}
+
+                    {/* Notification + User Icons */}
                     <FiBell className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
                     <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-red-600 transition">
                         <FiUser className="w-4 h-4 text-white" />
@@ -106,7 +120,6 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
             </div>
 
             {/* --- Sidebar (Fixed Left Navigation) --- */}
-            {/* Added left-0 to fix position */}
             <div
                 className={`bg-gray-800 text-white flex flex-col p-6 h-screen w-64
                 fixed top-0 left-0 z-30 transition-transform duration-300 ease-in-out
@@ -118,8 +131,6 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
                 {renderNavSection('SOCIAL', socialItems)}
                 {renderNavSection('GENERAL', generalItems)}
             </div>
-            
-            {/* REMOVED: The two spacer divs. Spacing is now handled in App.jsx */}
         </>
     );
 };

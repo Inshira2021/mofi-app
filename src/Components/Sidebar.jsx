@@ -1,29 +1,40 @@
-import React, { useState } from 'react';
-import { 
-    FiHome, FiUsers, FiSearch, FiClock, FiUser, 
-    FiGift, FiMusic, FiSettings, FiLogOut, FiMenu, FiBell
-} from 'react-icons/fi';
+// Components/Sidebar.jsx
 
-const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
+import React, { useState } from 'react';
+import {
+    FiHome, FiUsers, FiSearch, FiClock, FiUser,
+    FiGift, FiMusic, FiSettings, FiMenu, FiBell
+} from 'react-icons/fi';
+import ProfileDropdown from './ProfileDropdown';
+
+const Sidebar = ({
+    currentPage, setCurrentPage, activeTab, setActiveTab, onToggleSidebar,
+    isLoggedIn, onOpenAuthModal, isProfileDropdownOpen, onToggleProfileDropdown, onLogout
+}) => {
     const [isOpen, setIsOpen] = useState(true);
-    const [showSearch, setShowSearch] = useState(false); // <-- Added state for search bar toggle
+    const [showTopSearchBar, setShowTopSearchBar] = useState(false);
+
+    const toggleSidebar = () => {
+        const newState = !isOpen;
+        setIsOpen(newState);
+        onToggleSidebar(newState);
+    };
 
     const menuItems = [
-      { name: 'Home', icon: FiHome },
-      { name: 'Community', icon: FiUsers },
-      { name: 'Discovery', icon: FiSearch },
-      { name: 'Coming soon', icon: FiClock },
+        { name: 'Home', icon: FiHome },
+        { name: 'Community', icon: FiUsers },
+        { name: 'Discovery', icon: FiSearch },
+        { name: 'Coming soon', icon: FiClock },
     ];
 
     const socialItems = [
-      { name: 'Friends', icon: FiUser },
-      { name: 'Parties', icon: FiGift },
-      { name: 'Media', icon: FiMusic },
+        { name: 'Friends', icon: FiUser },
+        { name: 'Parties', icon: FiGift },
+        { name: 'Media', icon: FiMusic },
     ];
 
     const generalItems = [
-      { name: 'Setting', icon: FiSettings },
-      { name: 'Log Out', icon: FiLogOut },
+        { name: 'Settings', icon: FiSettings },
     ];
 
     const renderNavSection = (title, items) => (
@@ -59,32 +70,30 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
 
     return (
         <>
-            {/* --- Top bar: Fixed Header (h-16) --- */}
-            <div className="bg-gray-900 text-white flex items-center justify-between px-6 py-3 fixed top-0 left-0 right-0 z-40 h-16">
-                
-                {/* Left Side: Logo and Hamburger */}
+            {/* TOP BAR */}
+            <div className="bg-gray-800 text-white flex items-center justify-between px-6 py-3 fixed top-0 left-0 right-0 z-40 h-16">
+                {/* Left: Menu + Logo */}
                 <div className="flex items-center">
-                    <button 
-                        onClick={() => setIsOpen(!isOpen)} 
-                        className="mr-6 focus:outline-none hover:text-red-500 transition-colors"
-                    >
+                    <button onClick={toggleSidebar} className="mr-4 hover:text-red-500">
                         <FiMenu className="w-6 h-6" />
                     </button>
-                    <span className="text-xl font-bold mr-10">
-                        <span className="text-white tracking-wider">Mo</span>
-                        <span className="text-red-400 tracking-wider">fi</span>
+                    <span className="text-2xl font-extrabold">
+                        <span className="text-white">MO</span>
+                        <span className="text-red-600">FI</span>
                     </span>
                 </div>
 
-                {/* Center: TV Series, Movies, Animes Tabs */}
+                {/* Center: Tabs */}
                 <div className="flex space-x-8 text-lg font-medium">
                     {['TV Series', 'Movies', 'Animes'].map(tab => (
                         <button
                             key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`pb-1 transition ${
-                                tab === activeTab 
-                                ? 'text-red-600 border-b-2 border-red-600' 
+                            onClick={() => {
+                                setCurrentPage(tab); // go to that page
+                                setActiveTab(tab);
+                            }}
+                            className={`pb-1 transition ${currentPage === tab
+                                ? 'text-red-600 border-b-2 border-red-600'
                                 : 'text-gray-400 hover:text-white'
                             }`}
                         >
@@ -93,39 +102,56 @@ const Sidebar = ({ currentPage, setCurrentPage, activeTab, setActiveTab }) => {
                     ))}
                 </div>
 
-                {/* Right Side: Search, Notifications, User Icons */}
+                {/* Right: Icons / Auth */}
                 <div className="flex items-center space-x-6 relative">
-                    {/* Search Icon */}
                     <FiSearch
                         className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer"
-                        onClick={() => setShowSearch(!showSearch)}
+                        onClick={() => setShowTopSearchBar(prev => !prev)}
                     />
-
-                    {/* Search Input (Toggle visibility) */}
-                    {showSearch && (
+                    {showTopSearchBar && (
                         <input
                             type="text"
-                            placeholder="Search..."
-                            className="absolute right-16 top-1/2 -translate-y-1/2 bg-gray-800 text-white rounded-full px-4 py-2 w-64 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all"
+                            placeholder="Search movies..."
+                            className="absolute right-0 top-12 bg-gray-700 text-white rounded-lg px-4 py-2 w-64 border border-gray-600 focus:ring-1 focus:ring-red-600"
                             autoFocus
                         />
                     )}
-
-                    {/* Notification + User Icons */}
                     <FiBell className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
-                    <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center cursor-pointer hover:bg-red-600 transition">
-                        <FiUser className="w-4 h-4 text-white" />
+
+                    <div className="relative">
+                        {!isLoggedIn ? (
+                            <button
+                                onClick={onOpenAuthModal}
+                                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-4 rounded-full"
+                            >
+                                Sign In
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={onToggleProfileDropdown}
+                                    className="block rounded-full overflow-hidden w-9 h-9 border-2 hover:border-red-600"
+                                >
+                                    <FiUser className="w-full h-full p-1 bg-gray-700" />
+                                </button>
+                                {isProfileDropdownOpen && (
+                                    <ProfileDropdown
+                                        handleLogout={onLogout}
+                                        setCurrentPage={setCurrentPage}
+                                        onClose={onToggleProfileDropdown}
+                                    />
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
 
-            {/* --- Sidebar (Fixed Left Navigation) --- */}
+            {/* SIDEBAR */}
             <div
                 className={`bg-gray-800 text-white flex flex-col p-6 h-screen w-64
                 fixed top-0 left-0 z-30 transition-transform duration-300 ease-in-out
-                pt-16 // Starts below the fixed top bar
-                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-            `}
+                pt-20 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {renderNavSection('MENU', menuItems)}
                 {renderNavSection('SOCIAL', socialItems)}

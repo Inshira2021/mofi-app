@@ -5,6 +5,7 @@ import Dashboard, { OtherPageContent } from './Components/Dashboard';
 import Sidebar from './Components/Sidebar';
 import AuthModal from './Components/AuthModal';
 import ProfileDropdown from './Components/ProfileDropdown';
+import ProfilePage from './Components/ProfilePage';
 
 function App() {
     const [currentPage, setCurrentPage] = useState('Home');
@@ -39,6 +40,10 @@ function App() {
             );
         }
 
+          if (currentPage === 'Profile') {
+    return <ProfilePage />; // <-- Renders the creative profile page
+         }
+         
         // TV Series / Movies / Animes -> their own page
         if (['TV Series', 'Movies', 'Animes'].includes(currentPage)) {
             return <OtherPageContent key={currentPage} title={currentPage} isMainPage />;
